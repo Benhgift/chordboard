@@ -1,4 +1,5 @@
 import platform
+import sys
 import pygame
 from lib import xinput
 from lib.chorded import Chorded
@@ -18,7 +19,7 @@ if device_numbers:
     joystick = pygame.joystick.Joystick(device_numbers[0])
     joystick_name = joystick.get_name().upper()
     print('joystick: {} using "{}" device'.format(platform, joystick_name))
-    if 'XBOX 360' in joystick_name and windows_platform:
+    if 'XBOX' in joystick_name and windows_platform:
         windows_xbox_360 = True
         joystick = xinput.XInputJoystick(device_numbers[0])
         print('Using xinput.XInputJoystick')
@@ -30,12 +31,14 @@ if device_numbers:
 clock = pygame.time.Clock()
 
 max_fps = 60
-chorded = Chorded()
+chorded = Chorded(joystick)
 
 while True:
     clock.tick(max_fps)
-    if windows_xbox_360:
-        joystick.dispatch_events()
+    joystick.dispatch_events()
 
     for e in pygame.event.get():
-        chorded.process_button(e)
+        x = chorded.process_button(e)
+        if x:
+            sys.stdout.write(x)
+            sys.stdout.flush()
