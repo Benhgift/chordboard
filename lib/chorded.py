@@ -2,7 +2,7 @@ import pygame
 import time
 import threading
 from datetime import timedelta
-from lib.maps import maps
+from lib.maps import maps, dpad_maps
 from threading import Thread, Lock
 from math import atan2, pi
 from pygame.locals import *
@@ -45,6 +45,7 @@ class Chorded:
                 'start':0,
                 'select':0,
                 }
+        self.modifiers = {'shift':0, 'ctrl':0}
         self._lx = 0
         self._ly = 0
         self._rx = 0
@@ -92,11 +93,22 @@ class Chorded:
         current_direction = self._get_direction(directions, angle)
         self._set_direction(current_direction, stick)
 
+    def handle_modifiers(self, letter):
+        if letter in self.modifiers:
+            self.modifiers[letter] = 1
+            return None
+        elif letter.isalpha() and self.modifiers['shift']:
+            return letter.upper()
+        return letter
+
     def handle_button_down(self, button_num):
         button = self.button_numbers[button_num]
         self.buttons[button] = 1
         target_letters = maps[self.buttons['ls']]
+        if self.buttons['rs'] != 'none':
+            target_letters = target_letters[self.buttons['rs']]
         letter = target_letters[button]
+        letter = self.handle_modifiers(letter)
         return letter
 
     def handle_button_up(self, button_num):
@@ -140,4 +152,7 @@ class Chorded:
                 self.hats[self.which_hat] = 0
             if e.value != (0, 0):
                 self.which_hat = e.value
-                self.hats[self.which_hat] = 1
+            if e.value[1] == 1:
+                self.modifiers['shift'] = 1
+            else:
+                self.modifiers['shift'] = 0
