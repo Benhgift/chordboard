@@ -2,7 +2,7 @@ import pygame
 import time
 import threading
 from datetime import timedelta
-from lib.maps import maps, dpad_maps
+from lib.maps import maps, dpad_maps, modifiers
 from threading import Thread, Lock
 from math import atan2, pi
 from pygame.locals import *
@@ -13,7 +13,7 @@ class Chorded:
         self.joystick = joystick
         self.hats = {}
         self.which_hat = None  # save state
-        self.poop = None
+        self.maps = {tuple(sorted(x)):y for x, y in maps.items()}
         self.button_numbers = {
                 0:'a',
                 1:'b',
@@ -35,16 +35,17 @@ class Chorded:
                 'y':0,
                 'l1':0,
                 'l2':0,
+                'l3':0,
                 'r1':0,
                 'r2':0,
-                'ls':'none',
-                'l3':0,
-                'rs':'none',
                 'r3':0,
+                'ls':'none',
+                'rs':'none',
                 'dpad':'none',
                 'start':0,
                 'select':0,
                 }
+        self.active_keys = []
         self.modifiers = {'shift':0, 'ctrl':0}
         self._lx = 0
         self._ly = 0
@@ -53,7 +54,10 @@ class Chorded:
         self.start_time = time.time()
 
     def _check_no_magnitude(self, magnitude, stick):
+        current = self.buttons[stick]
         if magnitude < 40:
+            if current != 'none':
+                self._try_remove_active(stick + '_' + current)
             self.buttons[stick] = 'none'
             return True
         return False
@@ -70,17 +74,27 @@ class Chorded:
         t = threading.Thread(target=vibe, args=(self.joystick,))
         t.start()
 
+    def _try_remove_active(self, key):
+        try: 
+            self.active_keys.remove(key)
+        except:
+            pass
+
     def _set_direction(self, direction, stick):
-        if self.buttons[stick] != direction:
+        current = self.buttons[stick]
+        if current != direction:
             self.buttons[stick] = direction
             self.async_vib()
+            if current != 'none':
+                self._try_remove_active(stick + '_' + current)
+            self.active_keys.append(stick + '_' + direction)
 
     def _get_direction(self, directions, angle):
         for direction, direction_fn in directions.items():
             if direction_fn(angle):
                 return direction
 
-    def _handle_analog(self, x, y, stick):
+    def handle_analog(self, x, y, stick):
         angle = atan2(y, x) / pi
         magnitide = (x*10)**2 + (y*10)**2
         if self._check_no_magnitude(magnitide, stick): return 
@@ -94,25 +108,37 @@ class Chorded:
         self._set_direction(current_direction, stick)
 
     def handle_modifiers(self, letter):
-        if letter in self.modifiers:
-            self.modifiers[letter] = 1
-            return None
-        elif letter.isalpha() and self.modifiers['shift']:
-            return letter.upper()
+        if letter:
+            if letter in self.modifiers:
+                self.modifiers[letter] = 1
+                return None
+            elif letter.isalpha() and self.modifiers['shift']:
+                return letter.upper()
+        return letter
+
+    def _wipe_active_keys(self):
+        for key in self.active_keys:
+            if key not in modifiers:
+                self._try_remove_active(key)
+
+    def _get_letter_to_print(self):
+        try:
+            letter = self.maps[tuple(sorted(self.active_keys))]
+        except:
+            letter = None
         return letter
 
     def handle_button_down(self, button_num):
         button = self.button_numbers[button_num]
         self.buttons[button] = 1
-        target_letters = maps[self.buttons['ls']]
-        if self.buttons['rs'] != 'none':
-            target_letters = target_letters[self.buttons['rs']]
-        letter = target_letters[button]
-        letter = self.handle_modifiers(letter)
-        return letter
+        self.active_keys += [button]
+        letter = self._get_letter_to_print()
+        self._wipe_active_keys()
+        return self.handle_modifiers(letter)
 
     def handle_button_up(self, button_num):
         button = self.button_numbers[button_num]
+        self._try_remove_active(button)
         self.buttons[button] = 0
 
     def handle_triggers(self, trigger_num, value):
@@ -133,16 +159,16 @@ class Chorded:
                 return self.handle_triggers(11, e.value)
             elif e.axis == 0:
                 self._ly = e.value
-                self._handle_analog(self._lx, self._ly, 'ls')
+                self.handle_analog(self._lx, self._ly, 'ls')
             elif e.axis == 1:
                 self._lx = e.value
-                self._handle_analog(self._lx, self._ly, 'ls')
+                self.handle_analog(self._lx, self._ly, 'ls')
             elif e.axis == 3:
                 self._ry = e.value
-                self._handle_analog(self._rx, self._ry, 'rs')
+                self.handle_analog(self._rx, self._ry, 'rs')
             elif e.axis == 4:
                 self._rx = e.value
-                self._handle_analog(self._rx, self._ry, 'rs')
+                self.handle_analog(self._rx, self._ry, 'rs')
         elif e.type == JOYBUTTONDOWN:
             return self.handle_button_down(e.button)
         elif e.type == JOYBUTTONUP:
@@ -156,3 +182,4 @@ class Chorded:
                 self.modifiers['shift'] = 1
             else:
                 self.modifiers['shift'] = 0
+
