@@ -3,6 +3,7 @@ import sys
 import pygame
 from lib import xinput
 from lib.chorded import Chorded
+from pyautogui import typewrite, hotkey
 
 pygame.init()
 pygame.joystick.init()
@@ -40,5 +41,9 @@ while True:
     for e in pygame.event.get():
         x = chorded.process_button(e)
         if x:
-            sys.stdout.write(x)
-            sys.stdout.flush()
+            if type(x) is list:
+                hotkey(*x)
+            else:
+                typewrite(x)
+            #sys.stdout.write(x)
+            #sys.stdout.flush()

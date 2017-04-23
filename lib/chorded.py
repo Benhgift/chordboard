@@ -114,6 +114,8 @@ class Chorded:
                 return None
             elif letter.isalpha() and self.modifiers['shift']:
                 return letter.upper()
+            elif self.modifiers['ctrl']:
+                return ['ctrl', letter]
         return letter
 
     def _wipe_active_keys(self):
@@ -182,4 +184,8 @@ class Chorded:
                 self.modifiers['shift'] = 1
             else:
                 self.modifiers['shift'] = 0
+            if e.value[1] == -1:
+                self.modifiers['ctrl'] = 1
+            else:
+                self.modifiers['ctrl'] = 0
 

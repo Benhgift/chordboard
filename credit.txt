@@ -1,24 +1,5 @@
-"""test.py - integrating xinput.XInputJoystick with pygame for Windows + Xbox 360 controller
+Credit to the awesome r4dian for the xbox controller handling code. 
 
-Windows Xbox 360 cannot use pygame events for the left and right trigger. The axis doesn't come through distinctly.
-This alternative corrects that issue, and adds functions unique to the Xbox controller.
-
-General approach:
-
-1. Detect joysticks.
-2. Detect Windows.
-3. Detect Xbox 360 controller.
-4. Set up the joystick device platform+controller option.
-
-For non-Windows controllers use pygame's joystick.Joystick as usual.
-
-For Xbox 360 controller on Windows use xinput.XInputJoystick:
-
-1. Do "joystick = xinput.XInputJoystick()".
-2. Do "if WINDOWS_XBOX_360: joystick.dispatch_events()" each game tick to poll the device.
-3. Handle pygame events as usual.
-
-References:
 https://github.com/r4dian/Xbox-360-Controller-for-Python
-http://support.xbox.com/en-US/xbox-360/accessories/controllers
-"""
+
+Credit to https://screentogif.codeplex.com/ for the gif recorder that I use. 
