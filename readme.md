@@ -1,10 +1,14 @@
 # Chordboard
 
-Be able to type in VR using VR controllers, starting with Oculus Touch. Currently it only works with the Xbox controller (any) but only uses buttons which are available on the Oculus Touch. 
+Be able to type using controllers, starting with Xbox and Oculus Touch. Currently it only works with the Xbox controller (any) but only uses buttons which are available on the Oculus Touch. 
+
+Currently there's no solution for touch typing with a controller of any kind. 
 
 # Quickstart
 
-With an Xbox controller on: `python3 main.py`
+* Install pygame from http://www.pygame.org/download.shtml
+* `pip install pyautogui`
+* With an Xbox controller plugged in: `python3 main.py`
 
 # Current goal 4/23
 
