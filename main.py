@@ -39,11 +39,9 @@ while True:
     joystick.dispatch_events()
 
     for e in pygame.event.get():
-        x = chorded.process_button(e)
-        if x:
-            if type(x) is list:
-                hotkey(*x)
-            else:
-                typewrite(x)
+        letters = chorded.process_button(e)
+        if letters:
+            print(letters)
+            hotkey(*letters)
             #sys.stdout.write(x)
             #sys.stdout.flush()

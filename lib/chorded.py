@@ -46,7 +46,8 @@ class Chorded:
                 'select':0,
                 }
         self.active_keys = []
-        self.modifiers = {'shift':0, 'ctrl':0}
+        self.modifiers = {'alt':0, 'shift':0, 'ctrl':0}
+        self.triggered = self.modifiers.copy()
         self._lx = 0
         self._ly = 0
         self._rx = 0
@@ -108,15 +109,28 @@ class Chorded:
         self._set_direction(current_direction, stick)
 
     def handle_modifiers(self, letter):
+        output = [letter]
         if letter:
             if letter in self.modifiers:
                 self.modifiers[letter] = 1
-                return None
-            elif letter.isalpha() and self.modifiers['shift']:
-                return letter.upper()
-            elif self.modifiers['ctrl']:
-                return ['ctrl', letter]
-        return letter
+                return []
+            if letter.isalpha() and self.modifiers['shift']:
+                output[0] = letter.upper()
+                print(self.buttons['dpad'])
+                if self.buttons['dpad'] != 'up':
+                    self.modifiers['shift'] = 0
+            if self.modifiers['ctrl']:
+                output = ['ctrl'] + output
+                if self.buttons['dpad'] != 'down':
+                    self.modifiers['ctrl'] = 0
+            if self.modifiers['alt']:
+                output = ['alt'] + output
+                if self.buttons['rs'] != 'up':
+                    if not self.buttons['l1']:
+                        self.modifiers['alt'] = 0
+        else:
+            return []
+        return output
 
     def _wipe_active_keys(self):
         for key in self.active_keys:
@@ -181,11 +195,11 @@ class Chorded:
             if e.value != (0, 0):
                 self.which_hat = e.value
             if e.value[1] == 1:
+                self.buttons['dpad'] = 'up'
                 self.modifiers['shift'] = 1
-            else:
-                self.modifiers['shift'] = 0
-            if e.value[1] == -1:
+            elif e.value[1] == -1:
+                self.buttons['dpad'] = 'down'
                 self.modifiers['ctrl'] = 1
             else:
-                self.modifiers['ctrl'] = 0
+                self.buttons['dpad'] = 'none'
 
