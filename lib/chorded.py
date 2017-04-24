@@ -47,7 +47,7 @@ class Chorded:
                 }
         self.active_keys = []
         self.modifiers = {'alt':0, 'shift':0, 'ctrl':0}
-        self.triggered = self.modifiers.copy()
+        self.activated_but_not_used = {'shift':False, 'ctrl':False}
         self._lx = 0
         self._ly = 0
         self._rx = 0
@@ -113,16 +113,22 @@ class Chorded:
         if letter:
             if letter in self.modifiers:
                 self.modifiers[letter] = 1
+                self.activated_but_not_used[letter] = True
                 return []
             if letter.isalpha() and self.modifiers['shift']:
-                output[0] = letter.upper()
-                print(self.buttons['dpad'])
+                if self.buttons['dpad'] == 'up' or self.activated_but_not_used['shift']:
+                    output[0] = letter.upper()
+                    self.activated_but_not_used['shift'] = False
                 if self.buttons['dpad'] != 'up':
                     self.modifiers['shift'] = 0
+
             if self.modifiers['ctrl']:
-                output = ['ctrl'] + output
+                if self.buttons['dpad'] == 'down' or self.activated_but_not_used['ctrl']:
+                    output = ['ctrl'] + output
+                    self.activated_but_not_used['ctrl'] = False
                 if self.buttons['dpad'] != 'down':
                     self.modifiers['ctrl'] = 0
+
             if self.modifiers['alt']:
                 output = ['alt'] + output
                 if self.buttons['rs'] != 'up':
@@ -167,39 +173,55 @@ class Chorded:
 
     def process_button(self, e):
         if e.type == JOYAXISMOTION:
-            if e.axis == 2:
-                # l2
-                return self.handle_triggers(10, e.value)
-            elif e.axis == 5:
-                # r2
-                return self.handle_triggers(11, e.value)
-            elif e.axis == 0:
-                self._ly = e.value
-                self.handle_analog(self._lx, self._ly, 'ls')
-            elif e.axis == 1:
-                self._lx = e.value
-                self.handle_analog(self._lx, self._ly, 'ls')
-            elif e.axis == 3:
-                self._ry = e.value
-                self.handle_analog(self._rx, self._ry, 'rs')
-            elif e.axis == 4:
-                self._rx = e.value
-                self.handle_analog(self._rx, self._ry, 'rs')
+            return self._handle_axis_motion(e)
         elif e.type == JOYBUTTONDOWN:
             return self.handle_button_down(e.button)
         elif e.type == JOYBUTTONUP:
-            self.handle_button_up(e.button)
+            return self.handle_button_up(e.button)
         elif e.type == JOYHATMOTION:
-            if self.which_hat:
-                self.hats[self.which_hat] = 0
-            if e.value != (0, 0):
-                self.which_hat = e.value
-            if e.value[1] == 1:
-                self.buttons['dpad'] = 'up'
-                self.modifiers['shift'] = 1
-            elif e.value[1] == -1:
-                self.buttons['dpad'] = 'down'
-                self.modifiers['ctrl'] = 1
-            else:
-                self.buttons['dpad'] = 'none'
+            return self._handle_dpad(e)
 
+    def _handle_dpad(self, e):
+        if self.which_hat:
+            self.hats[self.which_hat] = 0
+        if e.value != (0, 0):
+            self.which_hat = e.value
+        if e.value[1] == 1:
+            self.buttons['dpad'] = 'up'
+            self._toggle('shift')
+
+        elif e.value[1] == -1:
+            self.buttons['dpad'] = 'down'
+            self._toggle('ctrl')
+        else:
+            self.buttons['dpad'] = 'none'
+
+    def _handle_axis_motion(self, e):
+        if e.axis == 2:
+            # l2
+            return self.handle_triggers(10, e.value)
+        elif e.axis == 5:
+            # r2
+            return self.handle_triggers(11, e.value)
+        elif e.axis == 0:
+            self._ly = e.value
+            return self.handle_analog(self._lx, self._ly, 'ls')
+        elif e.axis == 1:
+            self._lx = e.value
+            return self.handle_analog(self._lx, self._ly, 'ls')
+        elif e.axis == 3:
+            self._ry = e.value
+            return self.handle_analog(self._rx, self._ry, 'rs')
+        elif e.axis == 4:
+            self._rx = e.value
+            return self.handle_analog(self._rx, self._ry, 'rs')
+
+    def _toggle(self, key):
+        if self.activated_but_not_used[key]:
+            self.modifiers[key] = 0
+        else:
+            self.modifiers[key] = 1
+        self.activated_but_not_used[key] = not self.activated_but_not_used[key]
+
+# if dpad is up - > 
+    # check 

@@ -5,6 +5,13 @@ modifiers = (
         'rs_up', 'rs_down', 'rs_left', 'rs_right',
         )
 
+sticky_modifiers = {
+        ('dpad_up',): 'shift', 
+        ('dpad_down',): 'ctrl', 
+        ('rs_up', 'l2',): 'alt', 
+        ('ls_right', 'rs_down', 'r2',): 'win',
+        }
+
 maps = {
         ('rs_up', 'l1',): '?',
         ('rs_up', 'l2',): 'alt',
