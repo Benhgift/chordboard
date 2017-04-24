@@ -6,6 +6,10 @@ Be able to type in VR using VR controllers, starting with Oculus Touch. Currentl
 
 With an Xbox controller on: `python3 main.py`
 
+# Current goal 4/23
+
+Refactor how modifiers are handled in `lib/chorded` and `lib/maps` to be better. Shift should act like shift on a smartphone. Tap to activate, disable after 1 character, double tap to keep on, hold to keep on. 
+
 # How it works
 
 1. `main.py` initializes the Xbox controller and starts listening for input
