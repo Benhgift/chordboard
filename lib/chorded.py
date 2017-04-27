@@ -1,8 +1,9 @@
 import pygame
 import time
 import threading
+import lib.maps as maps
+from lib.maps import maps, dpad_maps, modifiers, sticky_modifiers
 from datetime import timedelta
-from lib.maps import maps, dpad_maps, modifiers
 from threading import Thread, Lock
 from math import atan2, pi
 from pygame.locals import *
@@ -14,6 +15,7 @@ class Chorded:
         self.hats = {}
         self.which_hat = None  # save state
         self.maps = {tuple(sorted(x)):y for x, y in maps.items()}
+        self.sticky_mods = {tuple(sorted(x)):y for x, y in sticky_modifiers.items()}
         self.button_numbers = {
                 0:'a',
                 1:'b',
@@ -46,6 +48,7 @@ class Chorded:
                 'select':0,
                 }
         self.active_keys = []
+        self.held_down_letters = set()
         self.modifiers = {'alt':0, 'shift':0, 'ctrl':0}
         self.activated_but_not_used = {'shift':False, 'ctrl':False}
         self._lx = 0
@@ -108,8 +111,29 @@ class Chorded:
         current_direction = self._get_direction(directions, angle)
         self._set_direction(current_direction, stick)
 
+    def _get_unheld_modifiers():
+        pass
+
     def handle_modifiers(self, letter):
+        # take all stick modifiers out (from maps.modifiers) and see if there's a match (dpad up?)
+        # put them back and see if there's a match
         output = [letter]
+        mod = self._get_target_from_maps(self.sticky_mods)
+        mods_to_output = []
+        #if mod:
+        #    self.activated_but_not_used[mod] = True
+        #    self.modifiers[mod] = 1
+        for x in self.sticky_mods:
+            # remove the mods that aren't pressed
+            pass
+        #if letter:
+        #    actives = []
+        #    for _mod, active in self.activated_but_not_used.items():
+        #        if active:
+        #            actives += [_mod]
+        #        self.activated_but_not_used[_mod] = False
+
+
         if letter:
             if letter in self.modifiers:
                 self.modifiers[letter] = 1
@@ -143,20 +167,28 @@ class Chorded:
             if key not in modifiers:
                 self._try_remove_active(key)
 
-    def _get_letter_to_print(self):
+    def _get_target_from_maps(self, maps):
         try:
-            letter = self.maps[tuple(sorted(self.active_keys))]
+            target = maps[tuple(sorted(self.active_keys))]
         except:
-            letter = None
-        return letter
+            target = None
+        return target
 
-    def handle_button_down(self, button_num):
+    def _get_letter_to_print(self):
+        return self._get_target_from_maps(self.maps)
+
+
+    def handle_hardware_button_down(self, button_num):
         button = self.button_numbers[button_num]
+        return self.handle_button_down(button)
+
+    def handle_button_down(self, button):
         self.buttons[button] = 1
         self.active_keys += [button]
         letter = self._get_letter_to_print()
+        letter = self.handle_modifiers(letter)
         self._wipe_active_keys()
-        return self.handle_modifiers(letter)
+        return letter
 
     def handle_button_up(self, button_num):
         button = self.button_numbers[button_num]
@@ -166,7 +198,7 @@ class Chorded:
     def handle_triggers(self, trigger_num, value):
         if value > .1:
             if self.buttons[self.button_numbers[trigger_num]] != 1:
-                return self.handle_button_down(trigger_num)
+                return self.handle_hardware_button_down(trigger_num)
         else:
             if self.buttons[self.button_numbers[trigger_num]] != 0:
                 return self.handle_button_up(trigger_num)
@@ -175,7 +207,7 @@ class Chorded:
         if e.type == JOYAXISMOTION:
             return self._handle_axis_motion(e)
         elif e.type == JOYBUTTONDOWN:
-            return self.handle_button_down(e.button)
+            return self.handle_hardware_button_down(e.button)
         elif e.type == JOYBUTTONUP:
             return self.handle_button_up(e.button)
         elif e.type == JOYHATMOTION:
@@ -223,5 +255,3 @@ class Chorded:
             self.modifiers[key] = 1
         self.activated_but_not_used[key] = not self.activated_but_not_used[key]
 
-# if dpad is up - > 
-    # check 

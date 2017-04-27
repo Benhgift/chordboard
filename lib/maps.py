@@ -6,6 +6,7 @@ modifiers = (
         )
 
 sticky_modifiers = {
+        # if no stick modifier given, it means any stick modifier
         ('dpad_up',): 'shift', 
         ('dpad_down',): 'ctrl', 
         ('rs_up', 'l2',): 'alt', 
@@ -13,8 +14,8 @@ sticky_modifiers = {
         }
 
 maps = {
+        # if no stick modifier given, it means zeroed stick only
         ('rs_up', 'l1',): '?',
-        ('rs_up', 'l2',): 'alt',
         ('rs_up', 'r1',): '\b',
         ('rs_up', 'r2',): '\t',
 
