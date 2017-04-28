@@ -1,9 +1,8 @@
 import platform
-import sys
 import pygame
 from lib import xinput
-from lib.chorded import Chorded
-from pyautogui import typewrite, hotkey
+from lib.key_state_manager import KeyStateManager
+from pyautogui import keyDown, keyUp
 
 pygame.init()
 pygame.joystick.init()
@@ -32,16 +31,21 @@ if device_numbers:
 clock = pygame.time.Clock()
 
 max_fps = 60
-chorded = Chorded(joystick)
+chorded = KeyStateManager(joystick)
 
 while True:
     clock.tick(max_fps)
     joystick.dispatch_events()
 
     for e in pygame.event.get():
-        letters = chorded.process_button(e)
-        if letters:
-            print(letters)
-            hotkey(*letters)
-            #sys.stdout.write(x)
-            #sys.stdout.flush()
+        keys = chorded.convert_controller_event_to_keys(e)
+        if not keys: 
+            continue
+        for key in keys:
+            letter = key['letter']
+            if key['direction'] == 'down':
+                print(letter, 'down')
+                keyDown(letter)
+            elif key['direction'] == 'up':
+                print(letter, 'up')
+                keyUp(letter)

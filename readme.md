@@ -10,9 +10,9 @@ Currently there's no solution for touch typing with a controller of any kind.
 * `pip install pyautogui`
 * With an Xbox controller plugged in: `python3 main.py`
 
-# Current goal 4/23
+# Current goal 5/13
 
-Refactor how modifiers are handled in `lib/chorded` and `lib/maps` to be better. Shift should act like shift on a smartphone. Tap to activate, disable after 1 character, double tap to keep on, hold to keep on. 
+Fix key events to work with key-down and key-up
 
 # How it works
 
@@ -22,3 +22,8 @@ Refactor how modifiers are handled in `lib/chorded` and `lib/maps` to be better.
 4. The letter is returned to the main loop and output
 
 ![how to gif](https://i.imgur.com/t4z772K.gif)
+
+# Credit
+To the awesome r4dian for the windows xbox controller handling code. 
+
+https://github.com/r4dian/Xbox-360-Controller-for-Python

@@ -1,5 +1,0 @@
-Credit to the awesome r4dian for the xbox controller handling code. 
-
-https://github.com/r4dian/Xbox-360-Controller-for-Python
-
-Credit to https://screentogif.codeplex.com/ for the gif recorder that I use. 
