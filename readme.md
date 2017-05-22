@@ -9,6 +9,7 @@ Currently there's no solution for touch typing with a controller of any kind.
 * Install pygame from http://www.pygame.org/download.shtml
 * `pip install pyautogui`
 * With an Xbox controller plugged in: `python3 main.py`
+* Reference `lib/maps.py` for which button combos map to which letters
 
 # Current goal 5/22
 
