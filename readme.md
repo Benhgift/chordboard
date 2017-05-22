@@ -1,6 +1,6 @@
 # Chordboard
 
-Be able to type using controllers, starting with Xbox and Oculus Touch. Currently it only works with the Xbox controller (any) but only uses buttons which are available on the Oculus Touch. 
+Be able to touch type using Xbox (done) and Oculus Touch (not done)
 
 Currently there's no solution for touch typing with a controller of any kind. 
 
@@ -10,9 +10,9 @@ Currently there's no solution for touch typing with a controller of any kind.
 * `pip install pyautogui`
 * With an Xbox controller plugged in: `python3 main.py`
 
-# Current goal 5/13
+# Current goal 5/22
 
-Fix key events to work with key-down and key-up
+Fix how modifier keys are handled (tapping the button for 'shift' should leave it on till used)
 
 # How it works
 
@@ -20,8 +20,6 @@ Fix key events to work with key-down and key-up
 2. Input is passed to `lib/chorded` which stores button state 
 3. `lib/chorded` asks `lib/maps` what letter should be printed given the state
 4. The letter is returned to the main loop and output
-
-![how to gif](https://i.imgur.com/t4z772K.gif)
 
 # Credit
 To the awesome r4dian for the windows xbox controller handling code. 
