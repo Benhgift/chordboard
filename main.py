@@ -39,9 +39,12 @@ while True:
 
     for e in pygame.event.get():
         keys = chorded.convert_controller_event_to_keys(e)
-        if not keys: 
+        if not keys:
             continue
         for key in keys:
+            if not key:
+                print(keys)
+                continue
             letter = key['letter']
             if key['direction'] == 'down':
                 print(letter, 'down')

@@ -50,7 +50,8 @@ class HardwareButtonHandler:
         angle = atan2(y, x) / pi
         magnitide = (x * 10) ** 2 + (y * 10) ** 2
         if self._check_no_magnitude(magnitide, stick):
-            up_b = stick + '_' + self.stick_direction[stick]
+            if self.stick_direction[stick]:
+                up_b = stick + '_' + self.stick_direction[stick]
             self.stick_direction[stick] = None
             return down_b, up_b
         directions = {
@@ -94,11 +95,8 @@ class HardwareButtonHandler:
         return down_b, up_b
 
     def _check_no_magnitude(self, magnitude, stick):
-        stick_dir = self.stick_direction[stick]
         if magnitude < 40:
-            if stick_dir:
-                # we need to cause a key_up for this stick
-                return True
+            return True
         return False
 
     def async_vib(self):
