@@ -1,3 +1,6 @@
+[![Build Status](https://api.travis-ci.org/Benhgift/chordboard.svg?branch=master)](https://travis-ci.org/Benhgift/chordboard)
+
+
 # Chordboard
 
 Be able to touch type using Xbox (done) and Oculus Touch (not done)
