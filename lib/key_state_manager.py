@@ -10,7 +10,7 @@ class KeyStateManager:
         self.sticky_mods = self._insert_sticks_into_sticky_mods(sticky_modifiers)
         self.sticky_mods = {tuple(sorted(x)): y for x, y in self.sticky_mods.items()}
         self.buttons = {'a': 0, 'b': 0, 'x': 0, 'y': 0, 'l1': 0, 'l2': 0, 'l3': 0, 'r1': 0, 'r2': 0, 'r3': 0, 'ls': 'none', 'rs': 'none', 'dpad': 'none', 'start': 0, 'select': 0, }
-        self.active_keys = []
+        self.active_held_buttons = []
         self.held_buttons = []
         self.held_letters = []
         self.modifiers = {'alt': 0, 'shift': 0, 'ctrl': 0, 'win': 0}
@@ -70,11 +70,16 @@ class KeyStateManager:
         return [{'letter': letter, 'direction': 'up'} for letter in letters]
 
     def _process_sticky_mod_for_button_up(self, letters):
-        letter = letters[0]
-        if letter in self.modifiers:
-            if self.activated_but_not_used[letter]:
-                letters = []
-        return letters
+        letters_out = []
+        modifiers_out = []
+        for letter in letters:
+            if letter in self.modifiers:
+                if self.activated_but_not_used[letter]:
+                    continue
+                modifiers_out.append(letter)
+            else:
+                letters_out.append(letter)
+        return letters_out + modifiers_out
 
     def _get_sticky_mod_to_print(self):
         return self._get_target_from_maps(self.sticky_mods)  # = 'shift' etc
@@ -96,18 +101,18 @@ class KeyStateManager:
 
     def _try_remove_active(self, button):
         try:
-            self.active_keys.remove(button)
+            self.active_held_buttons.remove(button)
         except:
             pass
 
     def _wipe_active_keys(self):
-        for key in self.active_keys:
+        for key in self.active_held_buttons:
             if key not in modifiers:
                 self._try_remove_active(key)
 
     def _get_target_from_maps(self, maps):
         try:
-            target = maps[tuple(sorted(self.active_keys))]
+            target = maps[tuple(sorted(self.active_held_buttons))]
         except:
             target = None
         return target
@@ -117,11 +122,11 @@ class KeyStateManager:
 
     def _record_button_is_down(self, button):
         self.buttons[button] = 1
-        self.active_keys += [button]
+        self.active_held_buttons += [button]
         self.held_buttons += [button]
 
     def _record_held_letter(self, letter):
-        mapping = [x for x in self.active_keys if x not in modifiers]
+        mapping = [x for x in self.active_held_buttons if x not in modifiers]
         self.held_letters += [{'letter': letter, 'mapping': mapping}]
 
     @staticmethod
@@ -136,14 +141,15 @@ class KeyStateManager:
         return rs_exists, ls_exists
 
     def _get_invalid_letter(self):
+        letters = []
         for letter in self.held_letters:
             for button in letter['mapping']:
                 if button in modifiers:
                     # skip because we want to still be holding a button down even if the user stops holding down that analog direction
                     continue
                 if button not in self.held_buttons:
-                    return [letter['letter']]
-        return []
+                    letters += [letter['letter']]
+        return letters
 
     def _try_remove_held_button(self, button):
         try:
