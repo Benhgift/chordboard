@@ -55,10 +55,10 @@ class HardwareButtonHandler:
             self.stick_direction[stick] = None
             return down_b, up_b
         directions = {
-            'right': lambda angle: -.25 < angle < .25,
-            'up': lambda angle: .25 < angle < .75,
-            'left': lambda angle: angle > .75 or angle < -.75,
-            'down': lambda angle: -.75 < angle < -.25,
+            'right': lambda angle: -.25 < angle <= .25,
+            'up': lambda angle: .25 < angle <= .75,
+            'left': lambda angle: .75 < angle or angle <= -.75,
+            'down': lambda angle: -.75 < angle <= -.25,
         }
         current_direction = self._get_direction(directions, angle)
         down_b, up_b = self._set_direction(current_direction, stick)
@@ -72,6 +72,10 @@ class HardwareButtonHandler:
             self.async_vib()
             if current:
                 up_b = stick + '_' + current
+            print()
+            print(stick)
+            print(current)
+            print(new_direction)
             down_b = stick + '_' + new_direction
         return down_b, up_b
 

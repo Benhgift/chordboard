@@ -71,23 +71,19 @@ def test_double_shift_lock():
 
     b1 = Button(JOYBUTTONUP, None, 0)
     # A up
-    print('-----2---- A up')
     assert(letter(ch, b1) == 'e')
 
     # dpad up tap
     b1 = Button(JOYHATMOTION, (1, 1), (1, 1))
-    assert(letter(ch, b1) == 'shift')
     b1 = Button(JOYHATMOTION, (0, 0), (0, 0))
     ch.convert_controller_event_to_keys(b1)
 
     b1 = Button(JOYBUTTONDOWN, None, 0)
     # A down
-    print('-----3---- A down')
     assert(letter(ch, b1) == 'e')
 
     b1 = Button(JOYBUTTONUP, None, 0)
     # A up
-    print('-----4---- A up')
     ch.convert_controller_event_to_keys(b1)
 
 

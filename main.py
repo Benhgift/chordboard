@@ -7,6 +7,7 @@ from pyautogui import keyDown, keyUp
 pygame.init()
 pygame.joystick.init()
 
+
 # Initialize a joystick object: grabs the first joystick
 _platform = platform.uname()[0].upper()
 windows_platform = _platform == 'WINDOWS'
