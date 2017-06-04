@@ -24,6 +24,9 @@ class KeyStateManager:
             output += self.handle_button_down(down_b)
         if up_b: # and up_b in self.buttons:
             output += self.handle_button_up(up_b)
+        print('output')
+        print(output)
+        print()
         return output
 
     def handle_button_down(self, button):

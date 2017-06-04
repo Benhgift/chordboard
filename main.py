@@ -47,8 +47,8 @@ while True:
                 continue
             letter = key['letter']
             if key['direction'] == 'down':
-                print(letter, 'down')
+                #print(letter, 'down')
                 keyDown(letter)
             elif key['direction'] == 'up':
-                print(letter, 'up')
+                #print(letter, 'up')
                 keyUp(letter)
